@@ -3,11 +3,13 @@
 //==========================================================================================
 // Global Configs  
 
+var fhirVersion = 'fhir-3.0.0';
 
 if(typeof oAuth2Server === 'object'){
   // TODO:  double check that this is needed; and that the /api/ route is correct
   JsonRoutes.Middleware.use(
-    '/api/*',
+    // '/api/*',
+    '/fhir-3.0.0/*',
     oAuth2Server.oauthserver.authorise()   // OAUTH FLOW - A7.1
   );
 }
@@ -57,7 +59,7 @@ JsonRoutes.sendResult = function (res, options) {
 //==========================================================================================
 // Step 1 - Create New Location  
 
-JsonRoutes.add("put", "/fhir-1.6.0/Location/:id", function (req, res, next) {
+JsonRoutes.add("put", "/" + fhirVersion + "/Location/:id", function (req, res, next) {
   process.env.DEBUG && console.log('PUT /fhir-1.6.0/Location/' + req.params.id);
   //process.env.DEBUG && console.log('PUT /fhir-1.6.0/Location/' + req.query._count);
 
@@ -198,7 +200,7 @@ JsonRoutes.add("put", "/fhir-1.6.0/Location/:id", function (req, res, next) {
 //==========================================================================================
 // Step 2 - Read Location  
 
-JsonRoutes.add("get", "/fhir-1.6.0/Location/:id", function (req, res, next) {
+JsonRoutes.add("get", "/" + fhirVersion + "/Location/:id", function (req, res, next) {
   process.env.DEBUG && console.log('GET /fhir-1.6.0/Location/' + req.params.id);
 
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -252,7 +254,7 @@ JsonRoutes.add("get", "/fhir-1.6.0/Location/:id", function (req, res, next) {
 //==========================================================================================
 // Step 3 - Update Location  
 
-JsonRoutes.add("post", "/fhir-1.6.0/Location", function (req, res, next) {
+JsonRoutes.add("post", "/" + fhirVersion + "/Location", function (req, res, next) {
   process.env.DEBUG && console.log('POST /fhir/Location/', JSON.stringify(req.body, null, 2));
 
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -351,7 +353,7 @@ JsonRoutes.add("post", "/fhir-1.6.0/Location", function (req, res, next) {
 //==========================================================================================
 // Step 4 - LocationHistoryInstance
 
-JsonRoutes.add("get", "/fhir-1.6.0/Location/:id/_history", function (req, res, next) {
+JsonRoutes.add("get", "/" + fhirVersion + "/Location/:id/_history", function (req, res, next) {
   process.env.DEBUG && console.log('GET /fhir-1.6.0/Location/', req.params);
   process.env.DEBUG && console.log('GET /fhir-1.6.0/Location/', req.query._count);
 
@@ -406,7 +408,7 @@ JsonRoutes.add("get", "/fhir-1.6.0/Location/:id/_history", function (req, res, n
 
 // NOTE:  We've not implemented _history functionality yet; so this endpoint is mostly a duplicate of Step 2.
 
-JsonRoutes.add("get", "/fhir-1.6.0/Location/:id/_history/:versionId", function (req, res, next) {
+JsonRoutes.add("get", "/" + fhirVersion + "/Location/:id/_history/:versionId", function (req, res, next) {
   process.env.DEBUG && console.log('GET /fhir-1.6.0/Location/:id/_history/:versionId', req.params);
   //process.env.DEBUG && console.log('GET /fhir-1.6.0/Location/:id/_history/:versionId', req.query._count);
 
@@ -516,7 +518,7 @@ generateDatabaseQuery = function(query){
   return databaseQuery;
 }
 
-JsonRoutes.add("get", "/fhir-1.6.0/Location", function (req, res, next) {
+JsonRoutes.add("get", "/" + fhirVersion + "/Location", function (req, res, next) {
   process.env.DEBUG && console.log('GET /fhir-1.6.0/Location', req.query);
 
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -564,7 +566,7 @@ JsonRoutes.add("get", "/fhir-1.6.0/Location", function (req, res, next) {
 //==========================================================================================
 // Step 6 - Location Search Type  
 
-JsonRoutes.add("post", "/fhir-1.6.0/Location/:param", function (req, res, next) {
+JsonRoutes.add("post", "/" + fhirVersion + "/Location/:param", function (req, res, next) {
   process.env.DEBUG && console.log('POST /fhir-1.6.0/Location/' + JSON.stringify(req.query));
 
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -628,7 +630,7 @@ JsonRoutes.add("post", "/fhir-1.6.0/Location/:param", function (req, res, next) 
 //==========================================================================================
 // Step 7 - Location Delete    
 
-JsonRoutes.add("delete", "/fhir-1.6.0/Location/:id", function (req, res, next) {
+JsonRoutes.add("delete", "/" + fhirVersion + "/Location/:id", function (req, res, next) {
   process.env.DEBUG && console.log('DELETE /fhir-1.6.0/Location/' + req.params.id);
 
   res.setHeader("Access-Control-Allow-Origin", "*");
