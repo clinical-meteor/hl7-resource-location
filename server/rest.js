@@ -468,30 +468,14 @@ generateDatabaseQuery = function(query){
 
   var databaseQuery = {};
 
-  if (query.family) {
-    databaseQuery['name'] = {
-      $elemMatch: {
-        'family': query.family
-      }
-    };
-  }
-  if (query.given) {
-    databaseQuery['name'] = {
-      $elemMatch: {
-        'given': query.given
-      }
-    };
-  }
+ 
   if (query.name) {
     databaseQuery['name'] = {
-      $elemMatch: {
-        'text': {
-          $regex: query.name,
-          $options: 'i'
-        }
-      }
+      $regex: query.name,
+      $options: 'i'
     };
   }
+  
   if (query.identifier) {
     databaseQuery['identifier'] = {
       $elemMatch: {
@@ -499,19 +483,35 @@ generateDatabaseQuery = function(query){
       }
     };
   }
-  if (query.gender) {
-    databaseQuery['gender'] = query.gender;
-  }
-  if (query.birthdate) {
-    var dateArray = query.birthdate.split("-");
-    var minDate = dateArray[0] + "-" + dateArray[1] + "-" + (parseInt(dateArray[2])) + 'T00:00:00.000Z';
-    var maxDate = dateArray[0] + "-" + dateArray[1] + "-" + (parseInt(dateArray[2]) + 1) + 'T00:00:00.000Z';
-    console.log("minDateArray", minDate, maxDate);
+  if (query.address) {
+    // databaseQuery['address.city'] = {
+    //   $regex: query.address,
+    //   $options: 'i'
+    // };
 
-    databaseQuery['birthDate'] = {
-      "$gte" : new Date(minDate),
-      "$lt" :  new Date(maxDate)
-    };
+    databaseQuery['$or'] = [{'address.city': {
+      $regex: query.address,
+      $options: 'i'
+    }}, {'address.state': {
+      $regex: query.address,
+      $options: 'i'
+    }}, {'address.postalCode': {
+      $regex: query.address,
+      $options: 'i'
+    }}];
+
+    // databaseQuery['address.city'] = {
+    //   $regex: query.address,
+    //   $options: 'i'
+    // };
+    // databaseQuery['address.state'] = {
+    //   $regex: query.address,
+    //   $options: 'i'
+    // };    
+    // databaseQuery['address.postalCode'] = {
+    //   $regex: query.address,
+    //   $options: 'i'
+    // };    
   }
 
   process.env.DEBUG && console.log('databaseQuery', databaseQuery);
@@ -538,11 +538,13 @@ JsonRoutes.add("get", "/" + fhirVersion + "/Location", function (req, res, next)
       var databaseQuery = generateDatabaseQuery(req.query);
 
       var payload = [];
-      var locations = Locations.find(databaseQuery);
+      var locations = Locations.find(databaseQuery).fetch();
+      process.env.DEBUG && console.log('locations', locations);
 
       locations.forEach(function(record){
         payload.push(Locations.prepForFhirTransfer(record));
       });
+      process.env.TRACE && console.log('payload', payload);
 
       // Success
       JsonRoutes.sendResult(res, {
@@ -594,7 +596,7 @@ JsonRoutes.add("post", "/" + fhirVersion + "/Location/:param", function (req, re
         var databaseQuery = generateDatabaseQuery(req.query);
         process.env.DEBUG && console.log('databaseQuery', databaseQuery);
 
-        locations = Locations.find(databaseQuery, {limit: searchLimit});
+        locations = Locations.find(databaseQuery, {limit: searchLimit}).fetch();
 
         var payload = [];
 
