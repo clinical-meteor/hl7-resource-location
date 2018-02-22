@@ -23,9 +23,12 @@ import TextField from 'material-ui/TextField';
 import { get, has } from 'lodash';
 
 
-Session.setDefault('locationPageTabIndex', 1); Session.setDefault('locationSearchFilter', ''); Session.setDefault('selectedLocation', false);
+Session.setDefault('locationPageTabIndex', 1); 
+Session.setDefault('locationSearchFilter', ''); 
+Session.setDefault('selectedLocation', false);
 Session.setDefault('shapefileDataLayer', false);
 Session.setDefault('tspRoute', []);
+Session.setDefault('mortalityLayer', true);
 
 const styles = {
   block: {
@@ -119,7 +122,7 @@ export class LocationsPage extends React.Component {
       layers: {
         heatmap: false,
         reimbursements: false,
-        mortality: false,
+        mortality: Session.get('mortalityLayer'),
         eyeexams: false,
         diabetes: false,
         lipidPanels: false,
@@ -378,6 +381,9 @@ export class LocationsPage extends React.Component {
       }
     });
   }
+  toggleMortalityLayer(){
+    Session.toggle('mortalityLayer');
+  }
   render() {
     var self = this;
     var markers = [];
@@ -404,27 +410,27 @@ export class LocationsPage extends React.Component {
             <Tab className="layersDetail" label='Layers' onActive={this.handleActive} style={this.data.style.tab} value={3}>
               <CardText>      
                 <h4>Map Types</h4>
-                <Checkbox label="Points" style={styles.checkbox} />
-                <Checkbox label="Heatmap" style={styles.checkbox} />
+                <Checkbox label="Points" style={styles.checkbox} checked={true}  />
+                <Checkbox label="Heatmap" style={styles.checkbox} disabled={true} />
                 <br/>
 
                 <h4>Health Statistics</h4>
-                <Checkbox label="Hospital Referral Regions" style={styles.checkbox} />
-                <Checkbox label="Health Service Areas" style={styles.checkbox} />                        
+                <Checkbox label="Hospital Referral Regions" style={styles.checkbox} disabled={true} />
+                <Checkbox label="Health Service Areas" style={styles.checkbox} checked={ Session.get('mortalityLayer')} />                        
                 <br/>
             
                 <h4>Public Services</h4>
-                <Checkbox label="Hospitals" style={styles.checkbox} />
-                <Checkbox label="Police Departments" style={styles.checkbox} />
+                <Checkbox label="Hospitals" style={styles.checkbox} disabled={true} />
+                <Checkbox label="Police Departments" style={styles.checkbox} disabled={true} />
                 <br/>
             
                 <h4>Medicare</h4>
-                <Checkbox label="Reimbursements" style={styles.checkbox} />
-                <Checkbox label="Total Mortality" style={styles.checkbox} />
-                <Checkbox label="Eye Exams" style={styles.checkbox} />
-                <Checkbox label="Diabetes" style={styles.checkbox} />
-                <Checkbox label="Lipid Panels" style={styles.checkbox} />
-                <Checkbox label="Outpatient Visits" style={styles.checkbox} />
+                <Checkbox label="Reimbursements" style={styles.checkbox} disabled={true} />
+                <Checkbox label="Total Mortality" style={styles.checkbox} onChange={this.toggleMortalityLayer} checked={ Session.get('mortalityLayer') } />
+                <Checkbox label="Eye Exams" style={styles.checkbox} disabled={true} />
+                <Checkbox label="Diabetes" style={styles.checkbox} disabled={true} />
+                <Checkbox label="Lipid Panels" style={styles.checkbox} disabled={true} />
+                <Checkbox label="Outpatient Visits" style={styles.checkbox} disabled={true} />
               </CardText>
             </Tab>
             <Tab className="quickAnalysisTab" label='Analysis' onActive={this.handleActive} style={this.data.style.tab} value={4}>
@@ -475,7 +481,7 @@ export class LocationsPage extends React.Component {
       this.data.markers.forEach(function(location){
         markers.push(
           <div lat={location.position.latitude} lng={ location.position.longitude} style={{width: '200px'}}>
-            <div style={{backgroundColor: 'orange', opacity: '.8', height: '10px', width: '10px', borderRadius: '80%'}}></div>
+            <div style={{backgroundColor: 'darkgray', opacity: '.8', height: '10px', width: '10px', borderRadius: '80%'}}></div>
             {location.name}
           </div>)
       });
@@ -495,13 +501,13 @@ export class LocationsPage extends React.Component {
           onGoogleApiLoaded={function({map, maps}){
             console.log('onGoogleApiLoaded', map);
 
-            for (var index = 0; index < 8; index++) {
-              tspWaypoints.push({
-                location: new maps.LatLng(self.data.tspRoute[index].latitude, self.data.tspRoute[index].longitude),
-                stopover: true
-              });
-            }
-            console.log('tspWaypoints', tspWaypoints)
+            // for (var index = 0; index < 8; index++) {
+            //   tspWaypoints.push({
+            //     location: new maps.LatLng(self.data.tspRoute[index].latitude, self.data.tspRoute[index].longitude),
+            //     stopover: true
+            //   });
+            // }
+            // console.log('tspWaypoints', tspWaypoints)
 
   
             map.data.setStyle({
@@ -550,78 +556,78 @@ export class LocationsPage extends React.Component {
             });
 
 
-            // TSP Routing / Directions
-            directionsService = new maps.DirectionsService({map: map});
-            directionsDisplay = new maps.DirectionsRenderer({map: map});
-            directionsDisplay.setMap(map);
+            // // TSP Routing / Directions
+            // directionsService = new maps.DirectionsService({map: map});
+            // directionsDisplay = new maps.DirectionsRenderer({map: map});
+            // directionsDisplay.setMap(map);
 
-            var request = {
-              origin: 'Logan Square, Chicago, IL',
-              destination: 'Logan Square, Chicago, IL',
-              waypoints: tspWaypoints,
-              provideRouteAlternatives: false,
-              travelMode: 'DRIVING',
-              unitSystem: maps.UnitSystem.IMPERIAL
-            }
+            // var request = {
+            //   origin: 'Logan Square, Chicago, IL',
+            //   destination: 'Logan Square, Chicago, IL',
+            //   waypoints: tspWaypoints,
+            //   provideRouteAlternatives: false,
+            //   travelMode: 'DRIVING',
+            //   unitSystem: maps.UnitSystem.IMPERIAL
+            // }
 
-            console.log('directionsService', directionsService);
-            console.log('directionsDisplay', directionsDisplay);
+            // console.log('directionsService', directionsService);
+            // console.log('directionsDisplay', directionsDisplay);
 
-            directionsService.route(request, function(result, status) {
-              if (status == 'OK') {
-                directionsDisplay.setDirections(result);
-              }
-            });
+            // directionsService.route(request, function(result, status) {
+            //   if (status == 'OK') {
+            //     directionsDisplay.setDirections(result);
+            //   }
+            // });
 
 
             
-            // heatmaps are special, and need to process the data from our geojson after it's received
-            if(self.data.layers.heatmap){
-              var dataLayer = [];
-              HTTP.get(Meteor.absoluteUrl() + '/geodata/health_service_areas_detailed.geojson', function(error, data){
-                var geojson = EJSON.parse(data.content);
-                console.log('loadGeoJson', geojson);
-                geojson.features.forEach(function(datum){
-                  if(datum.geometry && datum.geometry.coordinates && datum.geometry.coordinates[0] && datum.geometry.coordinates[1]){
-                    dataLayer.push(new maps.LatLng(datum.geometry.coordinates[1], datum.geometry.coordinates[0]));
-                  }
-                })
-                console.log('dataLayer', dataLayer);
+            // // heatmaps are special, and need to process the data from our geojson after it's received
+            // if(self.data.layers.heatmap){
+            //   var dataLayer = [];
+            //   HTTP.get(Meteor.absoluteUrl() + '/geodata/health_service_areas_detailed.geojson', function(error, data){
+            //     var geojson = EJSON.parse(data.content);
+            //     console.log('loadGeoJson', geojson);
+            //     geojson.features.forEach(function(datum){
+            //       if(datum.geometry && datum.geometry.coordinates && datum.geometry.coordinates[0] && datum.geometry.coordinates[1]){
+            //         dataLayer.push(new maps.LatLng(datum.geometry.coordinates[1], datum.geometry.coordinates[0]));
+            //       }
+            //     })
+            //     console.log('dataLayer', dataLayer);
 
-                // we sometimes also want to load the data twice
-                // do we need to double fetch?  or can we just pass data in here?
-                if(self.data.layers.points){
-                  map.data.loadGeoJson(Meteor.absoluteUrl() + '/geodata/health_service_areas_detailed.geojson');
-                  console.log('map.data', map.data);
-                }
+            //     // we sometimes also want to load the data twice
+            //     // do we need to double fetch?  or can we just pass data in here?
+            //     if(self.data.layers.points){
+            //       map.data.loadGeoJson(Meteor.absoluteUrl() + '/geodata/health_service_areas_detailed.geojson');
+            //       console.log('map.data', map.data);
+            //     }
 
 
-                // if we turn on the heatmap
-                var heatmap = new maps.visualization.HeatmapLayer({
-                  data: dataLayer,
-                  map: map
-                });
-                var gradient = [
-                  'rgba(0, 255, 255, 0)',
-                  'rgba(0, 255, 255, 1)',
-                  'rgba(0, 191, 255, 1)',
-                  'rgba(0, 127, 255, 1)',
-                  'rgba(0, 63, 255, 1)',
-                  'rgba(0, 0, 255, 1)',
-                  'rgba(0, 0, 223, 1)',
-                  'rgba(0, 0, 191, 1)',
-                  'rgba(0, 0, 159, 1)',
-                  'rgba(0, 0, 127, 1)',
-                  'rgba(63, 0, 91, 1)',
-                  'rgba(255, 0, 0, 1)'
-                ]
-                heatmap.set('gradient', gradient);
-                heatmap.set('radius', 40);
-                heatmap.set('opacity', 0.4);
-                heatmap.setMap(map);
+            //     // if we turn on the heatmap
+            //     var heatmap = new maps.visualization.HeatmapLayer({
+            //       data: dataLayer,
+            //       map: map
+            //     });
+            //     var gradient = [
+            //       'rgba(0, 255, 255, 0)',
+            //       'rgba(0, 255, 255, 1)',
+            //       'rgba(0, 191, 255, 1)',
+            //       'rgba(0, 127, 255, 1)',
+            //       'rgba(0, 63, 255, 1)',
+            //       'rgba(0, 0, 255, 1)',
+            //       'rgba(0, 0, 223, 1)',
+            //       'rgba(0, 0, 191, 1)',
+            //       'rgba(0, 0, 159, 1)',
+            //       'rgba(0, 0, 127, 1)',
+            //       'rgba(63, 0, 91, 1)',
+            //       'rgba(255, 0, 0, 1)'
+            //     ]
+            //     heatmap.set('gradient', gradient);
+            //     heatmap.set('radius', 40);
+            //     heatmap.set('opacity', 0.4);
+            //     heatmap.setMap(map);
 
-              });
-            } else {
+            //   });
+            // } else {
               map.data.loadGeoJson(Meteor.absoluteUrl() + '/geodata/health_service_areas_detailed.geojson');
               console.log('map.data', map.data);
 
@@ -711,7 +717,7 @@ export class LocationsPage extends React.Component {
                   };
                 })
               }              
-            }
+            // }
           }}
         >          
         {markers}
