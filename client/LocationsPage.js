@@ -23,6 +23,17 @@ import TextField from 'material-ui/TextField';
 import { get, has } from 'lodash';
 
 
+// location geomapping sometimes needs to pull static geojson documents
+// which requires navigating CORS; sometimes we need to specify the base url
+// and override the absoluteUrl specified by Galaxy
+var baseUrl;
+if(get(Meteor, 'public.baseUrl')){
+  baseUrl = get(Meteor, 'public.baseUrl');
+} else {
+  baseUrl = Meteor.absoluteUrl();  
+}
+
+
 Session.setDefault('locationPageTabIndex', 1); 
 Session.setDefault('locationSearchFilter', ''); 
 Session.setDefault('selectedLocation', false);
@@ -584,7 +595,7 @@ export class LocationsPage extends React.Component {
             // // heatmaps are special, and need to process the data from our geojson after it's received
             // if(self.data.layers.heatmap){
             //   var dataLayer = [];
-            //   HTTP.get(Meteor.absoluteUrl() + '/geodata/health_service_areas_detailed.geojson', function(error, data){
+            //   HTTP.get(baseUrl + '/geodata/health_service_areas_detailed.geojson', function(error, data){
             //     var geojson = EJSON.parse(data.content);
             //     console.log('loadGeoJson', geojson);
             //     geojson.features.forEach(function(datum){
@@ -597,7 +608,7 @@ export class LocationsPage extends React.Component {
             //     // we sometimes also want to load the data twice
             //     // do we need to double fetch?  or can we just pass data in here?
             //     if(self.data.layers.points){
-            //       map.data.loadGeoJson(Meteor.absoluteUrl() + '/geodata/health_service_areas_detailed.geojson');
+            //       map.data.loadGeoJson(baseUrl + '/geodata/health_service_areas_detailed.geojson');
             //       console.log('map.data', map.data);
             //     }
 
@@ -628,7 +639,7 @@ export class LocationsPage extends React.Component {
 
             //   });
             // } else {
-              map.data.loadGeoJson(Meteor.absoluteUrl() + '/geodata/health_service_areas_detailed.geojson');
+              map.data.loadGeoJson(baseUrl + '/geodata/health_service_areas_detailed.geojson');
               console.log('map.data', map.data);
 
               // reimbursements layer
