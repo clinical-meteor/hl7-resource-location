@@ -23,17 +23,6 @@ import TextField from 'material-ui/TextField';
 import { get, has } from 'lodash';
 
 
-// location geomapping sometimes needs to pull static geojson documents
-// which requires navigating CORS; sometimes we need to specify the base url
-// and override the absoluteUrl specified by Galaxy
-var baseUrl;
-if(get(Meteor, 'public.baseUrl')){
-  baseUrl = get(Meteor, 'public.baseUrl');
-} else {
-  baseUrl = Meteor.absoluteUrl();  
-}
-
-
 Session.setDefault('locationPageTabIndex', 1); 
 Session.setDefault('locationSearchFilter', ''); 
 Session.setDefault('selectedLocation', false);
@@ -118,9 +107,6 @@ export class LocationsPage extends React.Component {
           height: Session.get('appHeight'),
           width: Session.get('appWidth')
         }
-      },
-      state: {
-        isLoggedIn: false
       },
       tabIndex: Session.get('locationPageTabIndex'),
       locationSearchFilter: Session.get('locationSearchFilter'),
@@ -322,10 +308,6 @@ export class LocationsPage extends React.Component {
       }
     };
 
-    if (Meteor.user()) {
-      data.state.isLoggedIn = true;
-    }
-
     if(Session.get('shapefileDataLayer')){
       data.shapefileDataLayer = Session.get('shapefileDataLayer');
     }
@@ -334,7 +316,6 @@ export class LocationsPage extends React.Component {
     data.style.appbar = Glass.darkroom(data.style.appbar);
     data.style.tab = Glass.darkroom(data.style.tab);
     data.apiKey = get(Meteor, 'settings.public.google.maps.apiKey', '');
-    //console.log('data.apiKey', data.apiKey);
 
     if(process.env.NODE_ENV === "test") console.log("LocationsPage[data]", data);
     return data;
@@ -399,6 +380,7 @@ export class LocationsPage extends React.Component {
     var self = this;
     var markers = [];
     var tspWaypoints = [];
+    var map;
   
 
     // we know that the vertical canvas with locations will be displayed regardless of whether
@@ -427,7 +409,7 @@ export class LocationsPage extends React.Component {
 
                 <h4>Health Statistics</h4>
                 <Checkbox label="Hospital Referral Regions" style={styles.checkbox} disabled={true} />
-                <Checkbox label="Health Service Areas" style={styles.checkbox} checked={ Session.get('mortalityLayer')} />                        
+                <Checkbox label="Health Service Areas" style={styles.checkbox} onCheck={this.toggleMortalityLayer } checked={ this.data.layers.mortality } />                        
                 <br/>
             
                 <h4>Public Services</h4>
@@ -437,14 +419,14 @@ export class LocationsPage extends React.Component {
             
                 <h4>Medicare</h4>
                 <Checkbox label="Reimbursements" style={styles.checkbox} disabled={true} />
-                <Checkbox label="Total Mortality" style={styles.checkbox} onChange={this.toggleMortalityLayer} checked={ Session.get('mortalityLayer') } />
+                <Checkbox label="Total Mortality" style={styles.checkbox} onCheck={this.toggleMortalityLayer } checked={ this.data.layers.mortality } />
                 <Checkbox label="Eye Exams" style={styles.checkbox} disabled={true} />
                 <Checkbox label="Diabetes" style={styles.checkbox} disabled={true} />
                 <Checkbox label="Lipid Panels" style={styles.checkbox} disabled={true} />
                 <Checkbox label="Outpatient Visits" style={styles.checkbox} disabled={true} />
               </CardText>
             </Tab>
-            <Tab className="quickAnalysisTab" label='Analysis' onActive={this.handleActive} style={this.data.style.tab} value={4}>
+            {/* <Tab className="quickAnalysisTab" label='Analysis' onActive={this.handleActive} style={this.data.style.tab} value={4}>
               <CardText>
                   <Row>
                     <Col md={4}>
@@ -476,7 +458,7 @@ export class LocationsPage extends React.Component {
 
                   <LocationTable data={ this.data.tspRoute } />
               </CardText>
-            </Tab>
+            </Tab> */}
           </Tabs>
         </CardText>
       </GlassCard>
@@ -511,6 +493,7 @@ export class LocationsPage extends React.Component {
           }}
           onGoogleApiLoaded={function({map, maps}){
             console.log('onGoogleApiLoaded', map);
+            
 
             // for (var index = 0; index < 8; index++) {
             //   tspWaypoints.push({
@@ -595,7 +578,7 @@ export class LocationsPage extends React.Component {
             // // heatmaps are special, and need to process the data from our geojson after it's received
             // if(self.data.layers.heatmap){
             //   var dataLayer = [];
-            //   HTTP.get(baseUrl + '/geodata/health_service_areas_detailed.geojson', function(error, data){
+            //   HTTP.get(Meteor.absoluteUrl() + '/geodata/health_service_areas_detailed.geojson', function(error, data){
             //     var geojson = EJSON.parse(data.content);
             //     console.log('loadGeoJson', geojson);
             //     geojson.features.forEach(function(datum){
@@ -608,7 +591,7 @@ export class LocationsPage extends React.Component {
             //     // we sometimes also want to load the data twice
             //     // do we need to double fetch?  or can we just pass data in here?
             //     if(self.data.layers.points){
-            //       map.data.loadGeoJson(baseUrl + '/geodata/health_service_areas_detailed.geojson');
+            //       map.data.loadGeoJson(Meteor.absoluteUrl() + '/geodata/health_service_areas_detailed.geojson');
             //       console.log('map.data', map.data);
             //     }
 
@@ -638,8 +621,7 @@ export class LocationsPage extends React.Component {
             //     heatmap.setMap(map);
 
             //   });
-            // } else {
-              map.data.loadGeoJson(baseUrl + '/geodata/health_service_areas_detailed.geojson');
+              map.data.loadGeoJson(Meteor.absoluteUrl() + 'geodata/health_service_areas_detailed.geojson');
               console.log('map.data', map.data);
 
               // reimbursements layer
@@ -673,22 +655,22 @@ export class LocationsPage extends React.Component {
               } 
               if(self.data.layers.mortality){
                 map.data.setStyle(function(feature){
-                  var reimbursements = parseFloat(feature.getProperty("Total Mort"));
-                  console.log('reimbursements', reimbursements);
+                  var mortality = parseFloat(feature.getProperty("Total Mort"));
+                  //console.log('mortality', mortality);
                   var color = '#ffffff';
-                  if((1 < reimbursements) && (reimbursements < 3)){
+                  if((1 < mortality) && (mortality < 3)){
                      color = '#fdd49e';
-                  } else if ((3 < reimbursements) && (reimbursements <= 3.5)){
+                  } else if ((3 < mortality) && (mortality <= 3.5)){
                      color = '#fdbb84';
-                  } else if ((3.5 < reimbursements) && (reimbursements <= 4)){
+                  } else if ((3.5 < mortality) && (mortality <= 4)){
                      color = '#fc8d59';
-                  } else if ((4 < reimbursements) && (reimbursements <= 4.5)){
+                  } else if ((4 < mortality) && (mortality <= 4.5)){
                      color = '#ef6548';
-                  } else if ((4.5 < reimbursements) && (reimbursements <= 5)){
+                  } else if ((4.5 < mortality) && (mortality <= 5)){
                      color = '#d7301f';
-                  } else if ((5 < reimbursements) && (reimbursements <= 5.5)){
+                  } else if ((5 < mortality) && (mortality <= 5.5)){
                      color = '#b30000';
-                  } else if (5.5 <= reimbursements){
+                  } else if (5.5 <= mortality){
                      color = '#7f0000';
                   }
 
@@ -702,22 +684,22 @@ export class LocationsPage extends React.Component {
 
               if(self.data.layers.outpatientReimbursement){
                 map.data.setStyle(function(feature){
-                  var reimbursements = parseFloat(feature.getProperty("Outpat$"));
-                  console.log('reimbursements', reimbursements);
+                  var outpatients = parseFloat(feature.getProperty("Outpat$"));
+                  //console.log('outpatients', outpatients);
                   var color = '#ffffff';
-                  if((1 < reimbursements) && (reimbursements < 1000)){
+                  if((1 < outpatients) && (outpatients < 1000)){
                      color = '#eee1eb';
-                  } else if ((1001 < reimbursements) && (reimbursements <= 2000)){
+                  } else if ((1001 < outpatients) && (outpatients <= 2000)){
                      color = '#d6c6e6';
-                  } else if ((2001 < reimbursements) && (reimbursements <= 3000)){
+                  } else if ((2001 < outpatients) && (outpatients <= 3000)){
                      color = '#b89ac5';
-                  } else if ((3001 < reimbursements) && (reimbursements <= 4000)){
+                  } else if ((3001 < outpatients) && (outpatients <= 4000)){
                      color = '#775599';
-                  } else if ((4001 < reimbursements) && (reimbursements <= 5000)){
+                  } else if ((4001 < outpatients) && (outpatients <= 5000)){
                      color = '#321272';
-                  } else if ((5001 < reimbursements) && (reimbursements <= 6000)){
+                  } else if ((5001 < outpatients) && (outpatients <= 6000)){
                      color = '#300042';
-                  } else if (6001 <= reimbursements){
+                  } else if (6001 <= outpatients){
                      color = '#300042';
                   }
 
