@@ -621,7 +621,12 @@ export class LocationsPage extends React.Component {
             //     heatmap.setMap(map);
 
             //   });
-              map.data.loadGeoJson(Meteor.absoluteUrl() + 'geodata/health_service_areas_detailed.geojson');
+              var baseUrl = Meteor.absoluteUrl();
+              if(get(Meteor, 'settings.public.baseUrl')){
+                baseUrl = get(Meteor, 'settings.public.baseUrl');
+              }
+
+              map.data.loadGeoJson(baseUrl + 'geodata/health_service_areas_detailed.geojson');
               console.log('map.data', map.data);
 
               // reimbursements layer
