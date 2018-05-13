@@ -1,6 +1,6 @@
 Package.describe({
   name: 'clinical:hl7-resource-location',
-  version: '1.3.10',
+  version: '1.3.11',
   summary: 'HL7 FHIR Resource - Location',
   git: 'https://github.com/clinical-meteor/hl7-resource-location',
   documentation: 'README.md'
@@ -41,4 +41,9 @@ Package.onUse(function (api) {
   api.export('LocationSchema');
 
   api.mainModule('index.jsx', 'client');
+});
+
+Npm.depends({
+  "google-map-react":"1.0.1",
+  "react-easy-chart": "1.0.0"
 });
