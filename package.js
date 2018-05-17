@@ -1,6 +1,6 @@
 Package.describe({
   name: 'clinical:hl7-resource-location',
-  version: '1.3.11',
+  version: '1.3.14',
   summary: 'HL7 FHIR Resource - Location',
   git: 'https://github.com/clinical-meteor/hl7-resource-location',
   documentation: 'README.md'
@@ -31,6 +31,7 @@ Package.onUse(function (api) {
   api.addFiles('server/rest.js', 'server');
   api.addFiles('server/initialize.js', 'server');
   api.addFiles('server/methods.js', 'server');
+  api.addFiles('server/methods.geocoding.js', 'server');
 
   if(Package['clinical:fhir-vault-server']){
     api.use('clinical:fhir-vault-server@0.0.3', ['client', 'server'], {weak: true});
@@ -45,5 +46,6 @@ Package.onUse(function (api) {
 
 Npm.depends({
   "google-map-react":"1.0.1",
-  "react-easy-chart": "1.0.0"
+  "react-easy-chart": "1.0.0",
+  "node-geocoder": "3.22.0"
 });

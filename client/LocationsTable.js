@@ -110,7 +110,7 @@ export default class LocationTable extends React.Component {
 
 
     return(
-      <Table id="locationsTable" ref='locationsTable' responses hover >
+      <Table id="locationsTable" ref='locationsTable' hover >
         <thead>
           <tr>
             <th className="cardinality hidden-on-phone">cardinality</th>

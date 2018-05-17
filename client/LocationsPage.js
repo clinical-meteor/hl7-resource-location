@@ -329,6 +329,12 @@ export class LocationsPage extends React.Component {
     Session.set('selectedLocation', false);
     Session.set('locationUpsert', false);
   }
+  setGeojsonUrl(event, text){
+    console.log('setGeojsonUrl', text);
+
+    Session.set('geojsonUrl', text)
+  }
+
   // this could be a mixin
   changeState(field, event, value){
     let routeMetadataUpdate;
@@ -402,6 +408,16 @@ export class LocationsPage extends React.Component {
             </Tab>
             <Tab className="layersDetail" label='Layers' onActive={this.handleActive} style={this.data.style.tab} value={3}>
               <CardText>      
+              <TextField
+                  id='geojsonUrl'
+                  ref='geojsonUrl'
+                  name='geojsonUrl'
+                  floatingLabelText='Map Data Url'
+                  value={ Session.get('geojsonUrl') }
+                  onChange={ this.setGeojsonUrl.bind(this)}
+                  fullWidth
+                  /><br/><br/>
+
                 <h4>Map Types</h4>
                 <Checkbox label="Points" style={styles.checkbox} checked={true}  />
                 <Checkbox label="Heatmap" style={styles.checkbox} disabled={true} />

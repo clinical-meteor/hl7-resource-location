@@ -61,10 +61,15 @@ Meteor.methods({
     console.log('Syncing disabled... ');      
     }
 
-    }, 
+    },
+
+    // just an alias 
+    initializeLocations: function(){
+        this.initializeHospitals();
+    },
 
     // These are Chicago area hospitals
-    initializeLocations: function(){
+    initializeHospitals: function(){
 
     var hospitals = [{
             name: "Childrens Memorial Hospital",
