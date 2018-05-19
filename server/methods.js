@@ -178,9 +178,13 @@ Meteor.methods({
             var newLocation = {
                 name: hospital.name,
                 position: {
-                latitude: hospital.lat,
-                longitude: hospital.lng,
-                altitude: 594
+                    latitude: hospital.lat,
+                    longitude: hospital.lng,
+                    altitude: 594,
+                },
+                location: {
+                    type: "Point",
+                    coordinates: [hospital.lng, hospital.lat]
                 }
             }
             Locations.insert(newLocation);
