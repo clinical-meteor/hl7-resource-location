@@ -29,6 +29,9 @@ Session.setDefault('selectedLocation', false);
 Session.setDefault('shapefileDataLayer', false);
 Session.setDefault('tspRoute', []);
 Session.setDefault('mortalityLayer', true);
+Session.setDefault('proximityDistance', '5000');
+Session.setDefault('priximityLocations', false);
+
 
 const styles = {
   block: {
@@ -115,6 +118,10 @@ export class LocationsPage extends React.Component {
         lat: 41.8359496, 
         lng: -87.8317244
       },
+      home: {
+        lat: 41.8359496, 
+        lng: -87.8317244        
+      },
       zoom: 10, 
       layers: {
         heatmap: false,
@@ -126,8 +133,9 @@ export class LocationsPage extends React.Component {
         outpatientReimbursement: false
       },
       shapefileDataLayer: [],
-      markers: Locations.find({}, {sort: {name: 1}}).fetch(),
+      markers: [],
       tspRoute: Session.get('tspRoute'),
+      proximity: Session.get('proximityDistance'),
       options: {
         panControl: false,
         mapTypeControl: false,
@@ -137,16 +145,7 @@ export class LocationsPage extends React.Component {
             "elementType": "geometry",
             "stylers": [
               {
-                "strokeWeight": 1
-              }
-            ]
-          },
-          {
-            "elementType": "geometry.stroke",
-            "stylers": [
-              {
-                "color": "#616161",
-                "strokeWeight": 1
+                "color": "#f5f5f5"
               }
             ]
           },
@@ -206,7 +205,7 @@ export class LocationsPage extends React.Component {
             "elementType": "geometry",
             "stylers": [
               {
-                "color": "#bbdaa4"
+                "color": "#e5e5e5"
               }
             ]
           },
@@ -215,7 +214,7 @@ export class LocationsPage extends React.Component {
             "elementType": "labels.text.fill",
             "stylers": [
               {
-                "color": "#bbdaa4"
+                "color": "#9e9e9e"
               }
             ]
           },
@@ -287,7 +286,7 @@ export class LocationsPage extends React.Component {
             "elementType": "geometry",
             "stylers": [
               {
-                "color": "#99b3cc"
+                "color": "#c9c9c9"
               }
             ]
           },
@@ -296,7 +295,7 @@ export class LocationsPage extends React.Component {
             "elementType": "labels.text.fill",
             "stylers": [
               {
-                "color": "#99b3cc"
+                "color": "#9e9e9e"
               }
             ]
           }
@@ -310,6 +309,16 @@ export class LocationsPage extends React.Component {
 
     if(Session.get('shapefileDataLayer')){
       data.shapefileDataLayer = Session.get('shapefileDataLayer');
+    }
+    if(Session.get('priximityLocations')){
+      data.markers = Session.get('priximityLocations');
+    } else { 
+      data.markers = Locations.find({}, {sort: {name: 1}}).fetch();
+    }
+
+    if(get(Meteor.user(), 'profile.locations.home')){
+      data.home.lat = get(Meteor.user(), 'profile.locations.home.position.latitude')
+      data.home.lng = get(Meteor.user(), 'profile.locations.home.position.longitude')
     }
 
     data.style = Glass.blur(data.style);
@@ -365,6 +374,10 @@ export class LocationsPage extends React.Component {
       case "milesPerGallon":
         routeMetadataUpdate.milesPerGallon = value;
         break;
+        case "proximity":
+        routeMetadataUpdate.proximity = value;
+        Session.set('proximityDistance', value)
+        break;
       default:
     }
 
@@ -381,6 +394,19 @@ export class LocationsPage extends React.Component {
   }
   toggleMortalityLayer(){
     Session.toggle('mortalityLayer');
+  }
+  findNearMe(){
+    console.log('findLocationsNearMe');
+    Meteor.call('findLocationsNearMe', Session.get('proximityDistance'), function(error, result){
+      if(result){
+        console.log('result', result);
+
+        Session.set('priximityLocations', result);
+      }
+    });    
+  }
+  clearProximity(){
+    Session.set('priximityLocations', false);    
   }
   render() {
     var self = this;
@@ -442,6 +468,24 @@ export class LocationsPage extends React.Component {
                 <Checkbox label="Outpatient Visits" style={styles.checkbox} disabled={true} />
               </CardText>
             </Tab>
+            <Tab className="findNearMe" label='Proximity' onActive={this.handleActive} style={this.data.style.tab} value={4}>
+              <CardText>      
+              <TextField
+                  id='proximityInput'
+                  ref='proximity'
+                  name='proximity'
+                  floatingLabelText='Distance (meters)'
+                  value={ this.data.proximity }
+                  onChange={ this.changeState.bind(this, 'proximity')}
+                  fullWidth
+                  /><br/>
+
+                <br />
+                <RaisedButton id="findNearMe" label="Find Near Me" primary={true} onClick={this.findNearMe.bind(this)}  /> <br/><br/>
+                <RaisedButton id="clear" label="Clear" primary={true} onClick={this.clearProximity }  />
+
+              </CardText>
+            </Tab>
             {/* <Tab className="quickAnalysisTab" label='Analysis' onActive={this.handleActive} style={this.data.style.tab} value={4}>
               <CardText>
                   <Row>
@@ -485,12 +529,31 @@ export class LocationsPage extends React.Component {
     // we only want to render the google map in certain environments
     // specifically, we don't want to render it while running QA tests
     if(process.env.NODE_ENV !== 'test'){
+
+      markers.push(
+        <div lat={ this.data.home.lat} lng={ this.data.home.lng } style={{width: '200px'}}>
+          <div style={{backgroundColor: 'orange', opacity: '.8', height: '20px', width: '20px', borderRadius: '80%'}}></div>
+          {location.name}
+        </div>)
+
+
       // okay, we're not running QA tests,
       // so lets create a bunch of markers to draw on the map, and load them into a variable
       this.data.markers.forEach(function(location){
+
+        var bgColor;
+        if(get(location, 'type.text') === "Hospital"){
+          bgColor = '#21a525';
+        } 
+        if(get(location, 'type.text') === "Volunteer"){
+          bgColor = '#4286f4';
+        } 
+        if(get(location, 'type.text') === "Medication"){
+          bgColor = '#9e4545';
+        } 
         markers.push(
           <div lat={location.position.latitude} lng={ location.position.longitude} style={{width: '200px'}}>
-            <div style={{backgroundColor: 'darkgray', opacity: '.8', height: '10px', width: '10px', borderRadius: '80%'}}></div>
+            <div style={{backgroundColor: bgColor, opacity: '.8', height: '10px', width: '10px', borderRadius: '80%'}}></div>
             {location.name}
           </div>)
       });
