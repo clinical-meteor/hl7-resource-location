@@ -408,6 +408,13 @@ export class LocationsPage extends React.Component {
   clearProximity(){
     Session.set('priximityLocations', false);    
   }
+  initializeHospitals(){
+    console.log('initializeHospitals()')
+    Meteor.call('initializeHospitals');
+  }
+  initializePoliceStations(){
+    console.log('initializePoliceStations()')
+  }
   render() {
     var self = this;
     var markers = [];
@@ -438,34 +445,37 @@ export class LocationsPage extends React.Component {
                   id='geojsonUrl'
                   ref='geojsonUrl'
                   name='geojsonUrl'
-                  floatingLabelText='Map Data Url'
+                  floatingLabelText='Heat Map Data Url'
+                  floatingLabelFixed={true}
+                  placeholder='http://somewhere.com/healthdata.geojson'
                   value={ Session.get('geojsonUrl') }
                   onChange={ this.setGeojsonUrl.bind(this)}
                   fullWidth
-                  /><br/><br/>
-
-                <h4>Map Types</h4>
-                <Checkbox label="Points" style={styles.checkbox} checked={true}  />
-                <Checkbox label="Heatmap" style={styles.checkbox} disabled={true} />
+                  />
                 <br/>
-
-                <h4>Health Statistics</h4>
-                <Checkbox label="Hospital Referral Regions" style={styles.checkbox} disabled={true} />
-                <Checkbox label="Health Service Areas" style={styles.checkbox} onCheck={this.toggleMortalityLayer } checked={ this.data.layers.mortality } />                        
                 <br/>
-            
+                <br/>
+          
                 <h4>Public Services</h4>
-                <Checkbox label="Hospitals" style={styles.checkbox} disabled={true} />
-                <Checkbox label="Police Departments" style={styles.checkbox} disabled={true} />
+                <RaisedButton id="initializeHospitals" label="Initialize Hospital" primary={true} onClick={this.initializeHospitals.bind(this)}  /> <br/><br/>
+                <RaisedButton id="initializePoliceStations" label="Initialize Police Stations" primary={false} disabled={true} onClick={this.initializePoliceStations }  />
+
                 <br/>
-            
-                <h4>Medicare</h4>
+                <br/>
+                <br/>
+                <h4 style={{color: '#666666'}}>Health Statistics</h4>
+                <Checkbox label="Hospital Referral Regions" style={styles.checkbox} disabled={true} />
+                <Checkbox label="Health Service Areas" style={styles.checkbox} disabled={true} onCheck={this.toggleMortalityLayer } checked={ this.data.layers.mortality } />                        
+                <br/>
+
+                <h4 disabled={true} style={{color: '#666666'}}>Medicare</h4>
                 <Checkbox label="Reimbursements" style={styles.checkbox} disabled={true} />
-                <Checkbox label="Total Mortality" style={styles.checkbox} onCheck={this.toggleMortalityLayer } checked={ this.data.layers.mortality } />
+                <Checkbox label="Total Mortality" style={styles.checkbox} disabled={true} onCheck={this.toggleMortalityLayer } checked={ this.data.layers.mortality } />
                 <Checkbox label="Eye Exams" style={styles.checkbox} disabled={true} />
                 <Checkbox label="Diabetes" style={styles.checkbox} disabled={true} />
                 <Checkbox label="Lipid Panels" style={styles.checkbox} disabled={true} />
                 <Checkbox label="Outpatient Visits" style={styles.checkbox} disabled={true} />
+                <p>Contact <a href="mailto:sales@symptomatic.io">sales@symptomatic.io</a> for more information about enabling neighborhood level geodata.</p>
               </CardText>
             </Tab>
             <Tab className="findNearMe" label='Proximity' onActive={this.handleActive} style={this.data.style.tab} value={4}>
@@ -475,14 +485,15 @@ export class LocationsPage extends React.Component {
                   ref='proximity'
                   name='proximity'
                   floatingLabelText='Distance (meters)'
+                  placeholder='5000'
                   value={ this.data.proximity }
-                  onChange={ this.changeState.bind(this, 'proximity')}
+                  onKeyPress={this.changeState.bind(this, 'proximity')}
                   fullWidth
                   /><br/>
 
                 <br />
                 <RaisedButton id="findNearMe" label="Find Near Me" primary={true} onClick={this.findNearMe.bind(this)}  /> <br/><br/>
-                <RaisedButton id="clear" label="Clear" primary={true} onClick={this.clearProximity }  />
+                <RaisedButton id="clear" label="Clear Selection" primary={true} onClick={this.clearProximity }  />
 
               </CardText>
             </Tab>
@@ -541,7 +552,7 @@ export class LocationsPage extends React.Component {
       // so lets create a bunch of markers to draw on the map, and load them into a variable
       this.data.markers.forEach(function(location){
 
-        var bgColor;
+        var bgColor = '#666666';
         if(get(location, 'type.text') === "Hospital"){
           bgColor = '#21a525';
         } 
