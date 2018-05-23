@@ -22,11 +22,7 @@ export {
   DynamicRoutes, 
 
   LocationsPage,
-  LocationsTable,
-
-  Location,
-  Locations,
-  LocationSchema
+  LocationsTable
 };
 
 

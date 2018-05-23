@@ -109,6 +109,9 @@ export class LocationsPage extends React.Component {
           left: '0px',
           height: Session.get('appHeight'),
           width: Session.get('appWidth')
+        },
+        canvas: {
+          left: '0px;'
         }
       },
       tabIndex: Session.get('locationPageTabIndex'),
@@ -415,6 +418,9 @@ export class LocationsPage extends React.Component {
   initializePoliceStations(){
     console.log('initializePoliceStations()')
   }
+  initializeFireStations(){
+    console.log('initializeFireStations()')
+  }
   render() {
     var self = this;
     var markers = [];
@@ -424,7 +430,7 @@ export class LocationsPage extends React.Component {
 
     // we know that the vertical canvas with locations will be displayed regardless of whether
     // we load the background map; so lets create a variable to set it up
-    var canvas = <VerticalCanvas width={768} >
+    var canvas = <VerticalCanvas width={768} style={this.data.style.canvas}>
       <GlassCard height='auto'>
         <CardTitle
           title="Locations"
@@ -457,8 +463,9 @@ export class LocationsPage extends React.Component {
                 <br/>
           
                 <h4>Public Services</h4>
-                <RaisedButton id="initializeHospitals" label="Initialize Hospital" primary={true} onClick={this.initializeHospitals.bind(this)}  /> <br/><br/>
+                <RaisedButton id="initializeHospitals" label="Initialize Hospitals" primary={true} onClick={this.initializeHospitals.bind(this)}  /> <br/><br/>
                 <RaisedButton id="initializePoliceStations" label="Initialize Police Stations" primary={false} disabled={true} onClick={this.initializePoliceStations }  />
+                <RaisedButton id="initializeFireStations" label="Initialize Fire Stations" primary={true} onClick={this.initializeFireStations.bind(this)}  /> <br/><br/>
 
                 <br/>
                 <br/>
