@@ -12,10 +12,6 @@
 The resource in this package implements Location resource schema, specified at [https://www.hl7.org/fhir/location.html](https://www.hl7.org/fhir/location.html). 
 
 
-#### Conformance Statement  
-The resource in this package implements the FHIR Patient Resource schema provided at  [https://www.hl7.org/fhir/location.html](https://www.hl7.org/fhir/location.html).  
-
-
 #### Installation  
 
 ````bash
