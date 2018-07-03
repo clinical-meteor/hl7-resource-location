@@ -35,3 +35,7 @@ If you're working with HL7 FHIR Resources, we recommend using [Postman](https://
 [Medicare.gov Hospital General Information](https://data.medicare.gov/Hospital-Compare/Hospital-General-Information/xubh-q36u)    
 
 
+   
+#### Acknowledgements     
+
+Many thanks to Medstar Cabulance, Goin, and the MSBI Geomapping and Healthcare class at UChicago for all their generous support of this package.  
