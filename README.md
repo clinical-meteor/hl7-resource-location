@@ -9,7 +9,7 @@
 
 
 #### API Reference  
-The resource in this package implements Location resource schema, specified at [https://www.hl7.org/fhir/location.html](https://www.hl7.org/fhir/location.html). 
+The resource in this package implements Location resource schema, specified at [https://www.hl7.org/fhir/DSTU2/location.html](https://www.hl7.org/fhir/DSTU2/location.html). 
 
 
 #### Installation  
