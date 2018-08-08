@@ -1,6 +1,6 @@
 Package.describe({
   name: 'clinical:hl7-resource-location',
-  version: '1.3.27',
+  version: '1.4.0',
   summary: 'HL7 FHIR Resource - Location',
   git: 'https://github.com/clinical-meteor/hl7-resource-location',
   documentation: 'README.md'
@@ -31,6 +31,7 @@ Package.onUse(function (api) {
   api.addFiles('lib/Locations.js', ['client', 'server']);
   api.addFiles('server/rest.js', 'server');
   api.addFiles('server/initialize.js', 'server');
+  api.addFiles('lib/methods.js', ['client', 'server']);
   api.addFiles('server/methods.js', 'server');
   api.addFiles('server/methods.geocoding.js', 'server');
 
