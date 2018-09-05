@@ -7,7 +7,7 @@ import { GlassCard, VerticalCanvas, Glass } from 'meteor/clinical:glass-ui';
 
 Session.setDefault('selectedLocations', []);
 
-export default class LocationTable extends React.Component {
+export class LocationTable extends React.Component {
   getMeteorData() {
 
     // this should all be handled by props
@@ -90,10 +90,12 @@ export default class LocationTable extends React.Component {
 
   rowClick(id){
     Session.set('locationUpsert', false);
-    Session.set('selectedLocation', id);
+    Session.set('selectedLocationId', id);
     Session.set('locationPageTabIndex', 2);
   }
   render () {
+    if(process.env.NODE_ENV === "test") console.log('LocationTable.render()', this.state)
+
     let tableRows = [];
     // console.log('this.data.locations', this.data.locations);
     
@@ -101,7 +103,7 @@ export default class LocationTable extends React.Component {
       tableRows.push(
       <tr className='locationRow' ref='med-{i}' key={i} style={this.data.style.row} onClick={ this.rowClick.bind('this', this.data.locations[i]._id) }>
         <td className="cardinality">{(this.data.locations[i].cardinality) ? this.data.locations[i].cardinality : ''}</td>
-        <td className="locationName hidden-on-phone">{this.data.locations[i].name}</td>
+        <td className="name hidden-on-phone">{this.data.locations[i].name}</td>
         <td className="latitutude">{(this.data.locations[i].position) ? this.data.locations[i].position.latitude : ''}</td>
         <td className="longitude">{(this.data.locations[i].position) ? this.data.locations[i].position.longitude : ''}</td>
         <td className="altitude">{(this.data.locations[i].position) ? this.data.locations[i].position.altitude : ''}</td>
@@ -114,7 +116,7 @@ export default class LocationTable extends React.Component {
         <thead>
           <tr>
             <th className="cardinality hidden-on-phone">cardinality</th>
-            <th className="locationName hidden-on-phone">name</th>
+            <th className="name hidden-on-phone">name</th>
             <th className="latitutude">latitutude</th>
             <th className="longitude">longitude</th>
             <th className="altitude">altitude</th>
@@ -130,3 +132,4 @@ export default class LocationTable extends React.Component {
 
 
 ReactMixin(LocationTable.prototype, ReactMeteorData);
+export default LocationTable;

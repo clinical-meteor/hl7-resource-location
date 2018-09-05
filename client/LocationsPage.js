@@ -25,13 +25,14 @@ import { get, has } from 'lodash';
 
 Session.setDefault('locationPageTabIndex', 1); 
 Session.setDefault('locationSearchFilter', ''); 
-Session.setDefault('selectedLocation', false);
 Session.setDefault('shapefileDataLayer', false);
 Session.setDefault('tspRoute', []);
 Session.setDefault('mortalityLayer', true);
 Session.setDefault('proximityDistance', '5000');
 Session.setDefault('priximityLocations', false);
 
+Session.setDefault('selectedLocationId', false);
+Session.setDefault('fhirVersion', 'v1.0.2');
 
 const styles = {
   block: {
@@ -116,7 +117,9 @@ export class LocationsPage extends React.Component {
       },
       tabIndex: Session.get('locationPageTabIndex'),
       locationSearchFilter: Session.get('locationSearchFilter'),
-      currentLocation: Session.get('selectedLocation'),
+      selectedLocationId: Session.get('selectedLocationId'),
+      currentLocation: null,
+      fhirVersion: Session.get('fhirVersion'),
       center: {
         lat: 41.8359496, 
         lng: -87.8317244
@@ -319,6 +322,12 @@ export class LocationsPage extends React.Component {
       data.markers = Locations.find({}, {sort: {name: 1}}).fetch();
     }
 
+    if (Session.get('selectedLocationId')){
+      data.currentLocation = Locations.findOne({_id: Session.get('selectedLocationId')});
+    } else {
+      data.currentLocation = false;
+    }
+
     if(get(Meteor.user(), 'profile.locations.home')){
       data.home.lat = get(Meteor.user(), 'profile.locations.home.position.latitude')
       data.home.lng = get(Meteor.user(), 'profile.locations.home.position.longitude')
@@ -338,7 +347,7 @@ export class LocationsPage extends React.Component {
   }
 
   onNewTab(){
-    Session.set('selectedLocation', false);
+    Session.set('selectedLocationId', false);
     Session.set('locationUpsert', false);
   }
   setGeojsonUrl(event, text){
@@ -366,7 +375,7 @@ export class LocationsPage extends React.Component {
 
 
     // if there's an existing location, use them
-    if (Session.get('selectedLocation')) {
+    if (Session.get('selectedLocationId')) {
       routeMetadataUpdate = this.data.location;
     }
 
@@ -437,13 +446,21 @@ export class LocationsPage extends React.Component {
         />
         <CardText>
           <Tabs id="locationsPageTabs" default value={this.data.tabIndex} onChange={this.handleTabChange} initialSelectedIndex={1}> <Tab className="newLocationTab" label='New' style={this.data.style.tab} onActive={ this.onNewTab } value={0} >
-              <LocationDetail id='newLocation' />
+              <LocationDetail 
+                id='newLocation'
+                fhirVersion={ this.data.fhirVersion }
+              />  
             </Tab>
             <Tab className="locationListTab" label='Locations' onActive={this.handleActive} style={this.data.style.tab} value={1}>
               <LocationTable />
             </Tab>
             <Tab className="locationDetailsTab" label='Detail' onActive={this.handleActive} style={this.data.style.tab} value={2}>
-              <LocationDetail id='locationDetails' />
+              <LocationDetail 
+                id='locationDetails'
+                fhirVersion={ this.data.fhirVersion }
+                location={ this.data.currentLocation }
+                locationId={ this.data.selectedLocationId }
+              />
             </Tab>
             <Tab className="layersDetail" label='Layers' onActive={this.handleActive} style={this.data.style.tab} value={3}>
               <CardText>      
