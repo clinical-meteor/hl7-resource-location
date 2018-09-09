@@ -273,7 +273,7 @@ export class LocationDetail extends React.Component {
 
       Locations.update(
         {_id: this.props.locationId}, {$set: fhirLocationData }, {
-          validate: false, 
+          validate: true, 
           filter: false, 
           removeEmptyStrings: false
         }, function(error) {
@@ -293,7 +293,7 @@ export class LocationDetail extends React.Component {
       if(process.env.NODE_ENV === "test") console.log("Create a new Location", fhirLocationData);
 
       Locations.insert(fhirLocationData, {
-        validate: false, 
+        validate: true, 
         filter: false, 
         removeEmptyStrings: false
       }, function(error) {
