@@ -10,8 +10,6 @@ import PropTypes from 'prop-types';
 import { get, set } from 'lodash';
 
 
-Session.setDefault('locationUpsert', false);
-
 export class LocationDetail extends React.Component {
   constructor(props) {
     super(props);
@@ -271,12 +269,8 @@ export class LocationDetail extends React.Component {
       if(process.env.NODE_ENV === "test") console.log("update practioner");
       delete fhirLocationData._id;
 
-      Locations.update(
-        {_id: this.props.locationId}, {$set: fhirLocationData }, {
-          validate: get(Meteor, 'settings.public.defaults.schemas.validate', false), 
-          filter: get(Meteor, 'settings.public.defaults.schemas.filter', false), 
-          removeEmptyStrings: get(Meteor, 'settings.public.defaults.schemas.removeEmptyStrings', false)
-        }, function(error) {
+      Locations._collection.update(
+        {_id: this.props.locationId}, {$set: fhirLocationData }, function(error) {
           if (error) {
             console.log("error", error);
 
@@ -285,25 +279,19 @@ export class LocationDetail extends React.Component {
             Bert.alert('Location updated!', 'success');
             Session.set('locationPageTabIndex', 1);
             Session.set('selectedLocation', false);
-            Session.set('locationUpsert', false);
           }
         });
     } else {
 
       if(process.env.NODE_ENV === "test") console.log("Create a new Location", fhirLocationData);
 
-      Locations.insert(fhirLocationData, {
-        validate: get(Meteor, 'settings.public.defaults.schemas.validate', false), 
-        filter: get(Meteor, 'settings.public.defaults.schemas.filter', false), 
-        removeEmptyStrings: get(Meteor, 'settings.public.defaults.schemas.removeEmptyStrings', false)
-      }, function(error) {
+      Locations._collection.insert(fhirLocationData, function(error) {
         if (error) {
           Bert.alert(error.reason, 'danger');
         } else {
           Bert.alert('Location added!', 'success');
           Session.set('locationPageTabIndex', 1);
           Session.set('selectedLocation', false);
-          Session.set('locationUpsert', false);
         }
       });
     }
