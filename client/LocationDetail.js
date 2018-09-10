@@ -273,9 +273,9 @@ export class LocationDetail extends React.Component {
 
       Locations.update(
         {_id: this.props.locationId}, {$set: fhirLocationData }, {
-          validate: true, 
-          filter: false, 
-          removeEmptyStrings: false
+          validate: get(Meteor, 'settings.public.defaults.schemas.validate', false), 
+          filter: get(Meteor, 'settings.public.defaults.schemas.filter', false), 
+          removeEmptyStrings: get(Meteor, 'settings.public.defaults.schemas.removeEmptyStrings', false)
         }, function(error) {
           if (error) {
             console.log("error", error);
@@ -293,9 +293,9 @@ export class LocationDetail extends React.Component {
       if(process.env.NODE_ENV === "test") console.log("Create a new Location", fhirLocationData);
 
       Locations.insert(fhirLocationData, {
-        validate: true, 
-        filter: false, 
-        removeEmptyStrings: false
+        validate: get(Meteor, 'settings.public.defaults.schemas.validate', false), 
+        filter: get(Meteor, 'settings.public.defaults.schemas.filter', false), 
+        removeEmptyStrings: get(Meteor, 'settings.public.defaults.schemas.removeEmptyStrings', false)
       }, function(error) {
         if (error) {
           Bert.alert(error.reason, 'danger');

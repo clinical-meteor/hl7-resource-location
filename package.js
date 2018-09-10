@@ -1,6 +1,6 @@
 Package.describe({
   name: 'clinical:hl7-resource-location',
-  version: '1.5.4',
+  version: '1.5.5',
   summary: 'HL7 FHIR Resource - Location',
   git: 'https://github.com/clinical-meteor/hl7-resource-location',
   documentation: 'README.md'
@@ -51,5 +51,7 @@ Npm.depends({
   "google-map-react":"1.0.1",
   "react-easy-chart": "1.0.0",
   "node-geocoder": "3.22.0",
-  "simpl-schema": "1.5.3"
+  "simpl-schema": "1.5.3",
+  "moment": "2.22.2",
+  "lodash": "4.17.4"
 });
