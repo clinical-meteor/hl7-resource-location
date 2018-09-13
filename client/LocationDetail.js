@@ -304,7 +304,7 @@ export class LocationDetail extends React.Component {
 
   handleDeleteButton(){
     let self = this;
-    Locations.remove({_id: this.props.locationId}, function(error, result){
+    Locations._collection.remove({_id: this.props.locationId}, function(error, result){
       if (error) {
         Bert.alert(error.reason, 'danger');
       } else {
