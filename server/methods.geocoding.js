@@ -10,7 +10,7 @@ var options = {
 };
 
 if(get(Meteor, 'settings.public.google.maps.apiKey')){
-  options.provider.apiKey = get(Meteor, 'settings.public.google.maps.apiKey');
+  options.apiKey = get(Meteor, 'settings.public.google.maps.apiKey');
 }
 
 
