@@ -10,15 +10,16 @@ var options = {
 };
 
 if(get(Meteor, 'settings.public.google.maps.apiKey')){
-  options.provider.apiKey = get(Meteor, 'settings.public.google.maps.apiKey');
+  options.apiKey = get(Meteor, 'settings.public.google.maps.apiKey');
 }
 
+console.log('options', options)
 
 var geocoder = NodeGeocoder(options);
 
 Meteor.methods({
   parseGeojson: function(data){
-    check(data, Object);
+    check(data, Object);ß
 
     if(data.features && data.features.length > 0){
       data.features.forEach(function(feature){
