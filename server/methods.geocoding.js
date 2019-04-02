@@ -13,7 +13,7 @@ if(get(Meteor, 'settings.public.google.maps.apiKey')){
   options.apiKey = get(Meteor, 'settings.public.google.maps.apiKey');
 }
 
-console.log('options', options)
+console.log('Geocoding options: ', options)
 
 var geocoder = NodeGeocoder(options);
 
