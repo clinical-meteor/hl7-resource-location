@@ -1,7 +1,7 @@
 import { CardText, CardTitle } from 'material-ui/Card';
 import { Col, Grid, Row } from 'react-bootstrap';
 import { Tab, Tabs } from 'material-ui/Tabs';
-import { GlassCard, VerticalCanvas, Glass } from 'meteor/clinical:glass-ui';
+import { GlassCard, FullPageCanvas, Glass } from 'meteor/clinical:glass-ui';
 
 import Checkbox from 'material-ui/Checkbox';
 import { EJSON } from 'meteor/ejson';
@@ -112,7 +112,9 @@ export class LocationsPage extends React.Component {
           width: Session.get('appWidth')
         },
         canvas: {
-          left: '0px;'
+          left: '0px',
+          top: '0px',
+          position: 'fixed'
         }
       },
       tabIndex: Session.get('locationPageTabIndex'),
@@ -439,8 +441,8 @@ export class LocationsPage extends React.Component {
 
     // we know that the vertical canvas with locations will be displayed regardless of whether
     // we load the background map; so lets create a variable to set it up
-    var canvas = <VerticalCanvas width={768} style={this.data.style.canvas}>
-      <GlassCard height='auto'>
+    var canvas = <FullPageCanvas position="fixed" style={{top: '0px'}}>
+      <GlassCard height='auto' width='768px' >
         <CardTitle
           title="Locations"
         />
@@ -557,7 +559,7 @@ export class LocationsPage extends React.Component {
           </Tabs>
         </CardText>
       </GlassCard>
-    </VerticalCanvas>;
+    </FullPageCanvas>;
 
 
     var pageContent;
@@ -566,7 +568,7 @@ export class LocationsPage extends React.Component {
     if(process.env.NODE_ENV !== 'test'){
 
       markers.push(
-        <div lat={ this.data.home.lat} lng={ this.data.home.lng } style={{width: '200px'}}>
+        <div key='marker-init' lat={ this.data.home.lat} lng={ this.data.home.lng } style={{width: '200px'}}>
           <div style={{backgroundColor: 'orange', opacity: '.8', height: '20px', width: '20px', borderRadius: '80%'}}></div>
           {location.name}
         </div>)
@@ -574,7 +576,7 @@ export class LocationsPage extends React.Component {
 
       // okay, we're not running QA tests,
       // so lets create a bunch of markers to draw on the map, and load them into a variable
-      this.data.markers.forEach(function(location){
+      this.data.markers.forEach(function(location, index){
 
         var bgColor = '#666666';
         if(get(location, 'type.text') === "Hospital"){
@@ -586,11 +588,13 @@ export class LocationsPage extends React.Component {
         if(get(location, 'type.text') === "Medication"){
           bgColor = '#9e4545';
         } 
-        markers.push(
-          <div lat={location.position.latitude} lng={ location.position.longitude} style={{width: '200px'}}>
-            <div style={{backgroundColor: bgColor, opacity: '.8', height: '10px', width: '10px', borderRadius: '80%'}}></div>
-            {location.name}
-          </div>)
+        if(get(location, 'position.latitude') && get(location, 'position.longitude')){
+          markers.push(
+            <div key={'marker-' + index} lat={get(location, 'position.latitude')} lng={ get(location, 'position.longitude', 0)} style={{width: '200px'}}>
+              <div style={{backgroundColor: bgColor, opacity: '.8', height: '10px', width: '10px', borderRadius: '80%'}}></div>
+              {location.name}
+            </div>)  
+        }
       });
 
       // we're now going to draw our background map,

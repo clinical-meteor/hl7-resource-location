@@ -112,7 +112,7 @@ export class LocationTable extends React.Component {
 
 
     return(
-      <Table id="locationsTable" ref='locationsTable' hover >
+      <Table id="locationsTable" ref='locationsTable' >
         <thead>
           <tr>
             <th className="cardinality hidden-on-phone">cardinality</th>
