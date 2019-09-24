@@ -568,8 +568,8 @@ export class LocationsPage extends React.Component {
     if(process.env.NODE_ENV !== 'test'){
 
       markers.push(
-        <div key='marker-init' lat={ this.data.home.lat} lng={ this.data.home.lng } style={{width: '200px'}}>
-          <div style={{backgroundColor: 'orange', opacity: '.8', height: '20px', width: '20px', borderRadius: '80%'}}></div>
+        <div key='marker-init' lat={ this.data.home.lat} lng={ this.data.home.lng } style={{width: '200px'}} $hover="false">
+          <div $hover="false" style={{backgroundColor: 'orange', opacity: '.8', height: '20px', width: '20px', borderRadius: '80%'}}></div>
           {location.name}
         </div>)
 
